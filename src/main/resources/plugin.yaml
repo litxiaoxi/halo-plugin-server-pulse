@@ -1,0 +1,21 @@
+# Refer https://docs.halo.run/developer-guide/plugin/basics/manifest
+apiVersion: plugin.halo.run/v1alpha1
+kind: Plugin
+metadata:
+  name: server-pulse
+spec:
+  requires: ">=2.21.0"
+  author:
+    name: Litx
+    website: https://litx.cn
+  settingName: server-pulse-settings
+  configMapName: server-pulse-config
+  homepage: https://github.com/litxiaoxi/halo-plugin-server-pulse#readme
+  repo: https://github.com/litxiaoxi/halo-plugin-server-pulse
+  issues: https://github.com/litxiaoxi/halo-plugin-server-pulse/issues
+  displayName: "ServerPulse 服务器监控"
+  logo: "logo.png"
+  description: "为 Halo 提供独立的服务器监控页面，展示 CPU、内存、磁盘、运行时间与硬件信息。"
+  license:
+    - name: "MIT"
+      url: "https://github.com/litxiaoxi/halo-plugin-server-pulse/blob/main/LICENSE"

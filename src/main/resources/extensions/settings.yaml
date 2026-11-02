@@ -1,0 +1,52 @@
+apiVersion: v1alpha1
+kind: Setting
+metadata:
+  name: server-pulse-settings
+spec:
+  forms:
+    - group: general
+      label: 基本设置
+      formSchema:
+        - $formkit: text
+          name: serverName
+          label: 服务器名称
+          placeholder: 留空时使用站点标题
+          help: 显示在监控面板顶部的名称。
+        - $formkit: select
+          name: theme
+          label: 默认主题
+          value: auto
+          options:
+            - label: 跟随系统
+              value: auto
+            - label: 亮色
+              value: light
+            - label: 暗色
+              value: dark
+          help: 访客仍可在面板右上角切换主题。
+        - $formkit: number
+          name: refreshInterval
+          label: 刷新间隔（秒）
+          value: 3
+          validation: required|min:1|max:30
+          help: 允许 1–30 秒。页面隐藏时会自动暂停轮询。
+        - $formkit: radio
+          name: accessMode
+          label: 访问权限
+          value: login
+          options:
+            - label: 仅登录用户
+              value: login
+            - label: 公开访问（会向所有访客展示服务器概况）
+              value: public
+          help: 默认仅登录用户可见。公开访问会把 CPU、内存、磁盘和系统信息暴露给任何访客，请谨慎开启。
+        - $formkit: switch
+          name: showHistory
+          label: 显示历史曲线
+          value: true
+          help: 展示最近约 2 分钟的三项指标趋势。
+        - $formkit: switch
+          name: showDetails
+          label: 显示详细硬件信息
+          value: true
+          help: 关闭后服务端也会省略 CPU 型号、系统、磁盘、进程数等详细信息。

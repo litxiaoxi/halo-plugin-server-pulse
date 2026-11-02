@@ -1,0 +1,25 @@
+apiVersion: v1alpha1
+kind: Role
+metadata:
+  name: server-pulse-role-anonymous-metrics
+  labels:
+    halo.run/role-template: "true"
+    halo.run/hidden: "true"
+    rbac.authorization.halo.run/aggregate-to-anonymous: "true"
+rules:
+  - apiGroups: ["api.serverpulse.halo.run"]
+    resources: ["metrics"]
+    verbs: ["get", "list"]
+---
+apiVersion: v1alpha1
+kind: Role
+metadata:
+  name: server-pulse-role-authenticated-metrics
+  labels:
+    halo.run/role-template: "true"
+    halo.run/hidden: "true"
+    rbac.authorization.halo.run/aggregate-to-authenticated: "true"
+rules:
+  - apiGroups: ["api.serverpulse.halo.run"]
+    resources: ["metrics"]
+    verbs: ["get", "list"]

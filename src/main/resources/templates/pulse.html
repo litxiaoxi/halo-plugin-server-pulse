@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="https://www.thymeleaf.org" th:attr="data-theme=${pulseTheme}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="color-scheme" content="light dark">
+    <title th:text="|ServerPulse · ${site.title}|">ServerPulse</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/plugins/server-pulse/assets/pulse/img/favicon.svg}">
+    <link rel="stylesheet" th:href="@{/plugins/server-pulse/assets/pulse/css/pulse.css}">
+</head>
+<body th:attr="data-api-base=${apiBase},data-plugin-version=${pluginVersion},data-plugin-name=${pluginName},data-site-title=${site.title}">
+<div class="ambient" aria-hidden="true"></div>
+
+<div class="shell">
+    <header class="topbar">
+        <a class="brand" th:href="@{/}" aria-label="返回站点首页">
+            <img class="brand-mark" th:src="@{/plugins/server-pulse/assets/pulse/img/logo-mark.svg}" alt="" width="34" height="34">
+            <span class="brand-text">
+                <strong>ServerPulse</strong>
+                <small>SERVER MONITOR</small>
+            </span>
+        </a>
+        <div class="topbar-actions">
+            <div class="live-pill" id="live-pill" aria-live="polite">
+                <span class="live-dot" aria-hidden="true"></span>
+                <span id="live-text">正在连接</span>
+            </div>
+            <button class="icon-button" id="theme-toggle" type="button" aria-label="切换主题">
+                <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"></path>
+                </svg>
+                <svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M20.5 14.1A8.5 8.5 0 0 1 9.9 3.5 8.5 8.5 0 1 0 20.5 14.1Z"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero" aria-labelledby="server-name">
+            <div class="hero-copy">
+                <p class="eyebrow">SYSTEM OVERVIEW</p>
+                <h1 id="server-name">服务器监控</h1>
+                <p class="hero-sub" id="hero-sub">正在读取服务器状态…</p>
+            </div>
+            <div class="hero-meta">
+                <div class="meta-item">
+                    <span>运行时间</span>
+                    <strong id="uptime">--</strong>
+                </div>
+                <div class="meta-item">
+                    <span>最后更新</span>
+                    <strong id="last-updated">--</strong>
+                </div>
+                <div class="meta-item">
+                    <span>刷新</span>
+                    <strong id="refresh-label">--</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="state-panel" id="locked-state" hidden>
+            <div class="state-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+            </div>
+            <h2>仅登录用户可查看</h2>
+            <p>服务器监控包含硬件与运行状态信息。请登录 Halo 账号后返回此页面。</p>
+            <a class="button primary" id="login-link" href="/login?redirect=%2Fpulse">前往登录</a>
+        </section>
+
+        <section class="state-panel" id="error-state" hidden>
+            <div class="state-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 3 2.5 20h19L12 3Z"></path><path d="M12 9v5M12 17.5v.1"></path></svg>
+            </div>
+            <h2>暂时无法读取监控数据</h2>
+            <p id="error-message">请稍后重试。</p>
+            <button class="button primary" id="retry-button" type="button">立即重试</button>
+        </section>
+
+        <section class="dashboard" id="dashboard" aria-busy="true">
+            <div class="metric-grid">
+                <article class="metric-card metric-cpu">
+                    <header class="metric-head">
+                        <div class="metric-title">
+                            <span class="metric-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"></rect><path d="M9 3v2M15 3v2M9 19v2M15 19v2M3 9h2M3 15h2M19 9h2M19 15h2"></path></svg>
+                            </span>
+                            <span>处理器</span>
+                        </div>
+                        <span class="metric-tag">CPU</span>
+                    </header>
+                    <div class="metric-body">
+                        <div class="gauge" id="cpu-gauge" role="progressbar" aria-label="CPU 使用率" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                            <div class="gauge-ring" aria-hidden="true"></div>
+                            <div class="gauge-center"><span id="cpu-value">0</span><small>%</small></div>
+                        </div>
+                        <div class="metric-info">
+                            <strong id="cpu-detail">--</strong>
+                            <span id="cpu-sub">--</span>
+                        </div>
+                    </div>
+                    <div class="progress-track" aria-hidden="true"><span id="cpu-bar"></span></div>
+                </article>
+
+                <article class="metric-card metric-memory">
+                    <header class="metric-head">
+                        <div class="metric-title">
+                            <span class="metric-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="2"></rect><path d="M7 17v3M12 17v3M17 17v3M7 7V4M12 7V4M17 7V4"></path></svg>
+                            </span>
+                            <span>内存</span>
+                        </div>
+                        <span class="metric-tag">RAM</span>
+                    </header>
+                    <div class="metric-body">
+                        <div class="gauge" id="memory-gauge" role="progressbar" aria-label="内存使用率" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                            <div class="gauge-ring" aria-hidden="true"></div>
+                            <div class="gauge-center"><span id="memory-value">0</span><small>%</small></div>
+                        </div>
+                        <div class="metric-info">
+                            <strong id="memory-detail">--</strong>
+                            <span id="memory-sub">--</span>
+                        </div>
+                    </div>
+                    <div class="progress-track" aria-hidden="true"><span id="memory-bar"></span></div>
+                </article>
+
+                <article class="metric-card metric-storage">
+                    <header class="metric-head">
+                        <div class="metric-title">
+                            <span class="metric-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"></ellipse><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"></path><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"></path></svg>
+                            </span>
+                            <span>磁盘</span>
+                        </div>
+                        <span class="metric-tag">DISK</span>
+                    </header>
+                    <div class="metric-body">
+                        <div class="gauge" id="storage-gauge" role="progressbar" aria-label="磁盘使用率" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                            <div class="gauge-ring" aria-hidden="true"></div>
+                            <div class="gauge-center"><span id="storage-value">0</span><small>%</small></div>
+                        </div>
+                        <div class="metric-info">
+                            <strong id="storage-detail">--</strong>
+                            <span id="storage-sub">--</span>
+                        </div>
+                    </div>
+                    <div class="progress-track" aria-hidden="true"><span id="storage-bar"></span></div>
+                </article>
+            </div>
+
+            <div class="notice" id="degraded-note" hidden>
+                部分硬件信息不可用，当前使用 JVM 基础指标。
+            </div>
+
+            <section class="panel history-panel" id="history-panel" aria-labelledby="history-title">
+                <header class="panel-head">
+                    <div>
+                        <p class="eyebrow">LIVE TREND</p>
+                        <h2 id="history-title">最近 2 分钟</h2>
+                    </div>
+                    <div class="legend" aria-hidden="true">
+                        <span class="legend-item cpu">CPU</span>
+                        <span class="legend-item memory">内存</span>
+                        <span class="legend-item storage">磁盘</span>
+                    </div>
+                </header>
+                <div class="chart-wrap">
+                    <canvas id="history-chart" role="img" aria-label="最近两分钟 CPU、内存和磁盘使用率趋势"></canvas>
+                    <div class="chart-empty" id="chart-empty">正在采集历史数据…</div>
+                </div>
+            </section>
+
+            <section class="panel details-panel" id="details-panel" aria-labelledby="details-title">
+                <header class="panel-head">
+                    <div>
+                        <p class="eyebrow">HARDWARE &amp; RUNTIME</p>
+                        <h2 id="details-title">系统详情</h2>
+                    </div>
+                </header>
+                <div class="detail-grid">
+                    <div class="detail-cell">
+                        <span>处理器</span>
+                        <strong id="detail-cpu">--</strong>
+                        <small id="detail-cpu-sub">--</small>
+                    </div>
+                    <div class="detail-cell">
+                        <span>操作系统</span>
+                        <strong id="detail-os">--</strong>
+                        <small id="detail-os-sub">--</small>
+                    </div>
+                    <div class="detail-cell">
+                        <span>内存</span>
+                        <strong id="detail-memory">--</strong>
+                        <small id="detail-memory-sub">--</small>
+                    </div>
+                    <div class="detail-cell">
+                        <span>存储</span>
+                        <strong id="detail-storage">--</strong>
+                        <small id="detail-storage-sub">--</small>
+                    </div>
+                    <div class="detail-cell">
+                        <span>进程</span>
+                        <strong id="detail-process">--</strong>
+                        <small>系统进程数</small>
+                    </div>
+                    <div class="detail-cell">
+                        <span>JVM / 堆内存</span>
+                        <strong id="detail-runtime">--</strong>
+                        <small id="detail-runtime-sub">--</small>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <span>ServerPulse 插件 <span id="footer-version" th:text="${pluginVersion}">1.0.0</span></span>
+        <span class="footer-sep" aria-hidden="true">·</span>
+        <span>服务器监控</span>
+        <span class="footer-sep" aria-hidden="true">·</span>
+        <span id="access-badge">仅登录用户</span>
+    </footer>
+</div>
+
+<noscript>
+    <div class="noscript">ServerPulse 监控面板需要启用 JavaScript 才能读取服务器指标。</div>
+</noscript>
+
+<script th:src="@{/plugins/server-pulse/assets/pulse/js/pulse.js}" defer></script>
+</body>
+</html>
