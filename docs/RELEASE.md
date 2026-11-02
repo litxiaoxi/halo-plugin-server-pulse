@@ -76,7 +76,7 @@ JAR 根目录应包含 `plugin.yaml`、`logo.png`、`templates/pulse.html`、`st
 ## 应用市场资料
 
 - 应用名称：ServerPulse 服务器监控
-- 版本：1.0.0
+- 版本：1.0.1
 - Halo 兼容范围：`>=2.21.0`
 - 许可证：MIT
 - 简介：为 Halo 提供独立的服务器监控页面；默认仅登录用户可见。
@@ -87,7 +87,7 @@ JAR 根目录应包含 `plugin.yaml`、`logo.png`、`templates/pulse.html`、`st
 ## 本次验证记录（本地）
 
 - 日期：2026-11-02
-- 插件版本：1.0.0
+- 插件版本：1.0.1（在 1.0.0 基础上仅新增 LICENSE 打包，功能未变）
 - Halo 版本：2.27.2、2.21.0（Java 21.0.9）
 - 验证结果：
   - Halo 2.27.2：安装、启用、重启后自动启动；`/pulse` 200；匿名 API 401；登录后 API 200；OSHI 正常读取 CPU/内存/磁盘；禁用后 `/pulse` 404，重新启用后恢复。
@@ -96,8 +96,8 @@ JAR 根目录应包含 `plugin.yaml`、`logo.png`、`templates/pulse.html`、`st
   - 设置项：服务器名称、访问模式、显示历史曲线、显示详细硬件信息均生效；`showDetails=false` 时服务端省略 `info`/`runtime`。
   - 页面在 1440×1000、390×844 下无横向溢出；浏览器控制台无错误；无外部域名请求。
 - 截图：`docs/screenshots/desktop-light.png`、`desktop-dark.png`、`mobile.png`。
-- 制品：`build/libs/server-pulse-1.0.0.jar`
-- SHA-256：`fb34d4e6dd610e5af28613908e22ad85196c3cb2b94009f294e16897f96d5f30`
+- 制品：`build/libs/server-pulse-1.0.1.jar`
+- SHA-256：`33f82e972fb94df45a6440e191bf54cc6bf26f46d08c2032d83bcf76355cbfdf`（1.0.1 仅新增 LICENSE 打包，功能未变）
 
 ## 记录模板
 

@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'cn.litx'
-version = findProperty('version') ?: '1.0.0'
+version = findProperty('version') ?: '1.0.1'
 
 repositories {
     mavenCentral()
@@ -41,7 +41,8 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 tasks.named('processResources') {
-    // Bundle third-party dependency notices into the plugin JAR.
+    // Bundle the project license and third-party dependency notices into the plugin JAR.
+    from('LICENSE')
     from('NOTICE')
 }
 

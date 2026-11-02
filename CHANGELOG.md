@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- 修复插件 JAR 未包含项目 MIT LICENSE 的问题；功能无变化。
+
 ## 1.0.0
 
 - 首次发布 ServerPulse。

@@ -6,7 +6,7 @@
 
 - 名称：ServerPulse 服务器监控
 - 类型：插件
-- 版本：1.0.0
+- 版本：1.0.1
 - Halo 兼容范围：`>=2.21.0`
 - 许可证：MIT
 - 简介：为 Halo 提供独立的服务器监控页面，展示 CPU、内存、磁盘、运行时间与硬件信息。
@@ -45,9 +45,9 @@ ServerPulse 把服务器状态做成一个干净、独立的 Halo 前台页面�
 3. `screenshots/mobile.png`：移动端界面。
 4. 可选：`screenshots/login-required.png`、`screenshots/public-anonymous.png`。
 
-## 版本说明（1.0.0）
+## 版本说明（1.0.1）
 
-首个版本：服务器指标面板、历史曲线、亮暗主题、Halo 设置、登录/公开访问控制、OSHI 指标与 JVM 降级。
+1.0.1：修复插件 JAR 未包含项目 MIT LICENSE 的问题，功能无变化。首个版本包含服务器指标面板、历史曲线、亮暗主题、Halo 设置、登录/公开访问控制、OSHI 指标与 JVM 降级。
 
 ## 原创声明与第三方依赖
 
