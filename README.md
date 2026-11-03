@@ -1,10 +1,35 @@
 # ServerPulse 服务器监控（Halo 插件）
 
-为 Halo 提供独立的服务器监控页面，在 Halo 进程内直接读取服务器指标，不需要额外 Agent、独立服务或数据库。
+为 Halo 提供服务器监控能力，支持两种访问方式：独立监控页 `/pulse` 与 Halo 控制台仪表盘部件。插件在 Halo 进程内直接读取指标，不需要额外 Agent、独立服务或数据库。
 
 仓库：<https://github.com/litxiaoxi/halo-plugin-server-pulse>
 
-![ServerPulse 监控面板](docs/screenshots/desktop-light.png)
+| 访问方式 | 入口 | 说明 |
+| --- | --- | --- |
+| 独立监控页 | `/pulse` | 完整面板：CPU / 内存 / 磁盘、历史曲线、硬件详情，支持亮色、暗色和跟随系统主题。 |
+| 控制台仪表盘部件 | `/console/dashboard` →「设置」→「添加部件」→「小部件中心」→「服务器」 | 在 Halo 控制台首页快速查看 CPU / 内存 / 磁盘、运行时间与硬件摘要，支持拖动缩放。 |
+
+## 界面预览
+
+### 独立监控页 `/pulse`
+
+<p align="center">
+  <img src="docs/screenshots/desktop-light.png" alt="ServerPulse /pulse 页面（亮色）" width="49%" />
+  <img src="docs/screenshots/desktop-dark.png" alt="ServerPulse /pulse 页面（暗色）" width="49%" />
+</p>
+
+### 控制台仪表盘部件
+
+<p align="center">
+  <img src="docs/screenshots/dashboard-widget-wide.png" alt="宽屏布局：指标卡 + 侧边趋势图" width="49%" />
+  <img src="docs/screenshots/dashboard-widget-tall.png" alt="窄高布局：纵向指标 + 趋势图" width="49%" />
+</p>
+<p align="center">
+  <img src="docs/screenshots/dashboard-widget-gauge.png" alt="环形仪表卡布局" width="49%" />
+  <img src="docs/screenshots/dashboard-widget-compact.png" alt="紧凑条形布局" width="49%" />
+</p>
+
+部件会根据仪表盘卡片的宽高自动切换：宽屏使用「指标卡 + 侧边趋势图」，窄而高使用「纵向指标 + 趋势图」，中等尺寸使用环形仪表卡，矮容器使用紧凑条形布局。预览时使用示例数据，添加到仪表盘后按插件设置的刷新间隔轮询。
 
 ## 功能
 
@@ -66,11 +91,8 @@ GET /apis/api.serverpulse.halo.run/v1alpha1/metrics
 
 ## 控制台仪表盘部件
 
-![ServerPulse 仪表盘部件](docs/screenshots/dashboard-widget.png)
-
 - 在 Halo 控制台首页 `/console/dashboard` 点击右上角「设置」→「添加部件」→「小部件中心」→「服务器」分组，添加 ServerPulse 部件并保存。
-- 部件展示 CPU、内存、磁盘三个环形指标，以及运行时间、硬件摘要和实时状态；支持拖动和缩放。
-- 部件会根据宽高自动切换布局：窄而高时使用纵向指标行，宽而短时使用紧凑条形，较大尺寸下展示最近 2 分钟趋势曲线。
+- 部件展示 CPU、内存、磁盘三项指标，以及运行时间、硬件摘要和实时状态；较大尺寸下展示最近 2 分钟趋势曲线。
 - 部件右上角齿轮可配置标题、是否显示运行时间和硬件信息。
 - 部件沿用上面的访问策略；当前账号无权查看时显示「无查看权限」，不会绕过服务端权限。
 - 部件预览使用示例数据，不会发起请求；添加到仪表盘后按插件设置的刷新间隔轮询，页面隐藏时暂停。
