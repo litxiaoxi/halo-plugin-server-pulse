@@ -15,7 +15,7 @@ spec:
   issues: https://github.com/litxiaoxi/halo-plugin-server-pulse/issues
   displayName: "ServerPulse 服务器监控"
   logo: "logo.png"
-  description: "为 Halo 提供独立的服务器监控页面，展示 CPU、内存、磁盘、运行时间与硬件信息，启用后访问 /pulse。"
+  description: "为 Halo 提供独立的服务器监控页面与控制台仪表盘部件，展示 CPU、内存、磁盘、运行时间与硬件信息；启用后访问 /pulse 或在仪表盘添加 ServerPulse 部件。"
   license:
     - name: "MIT"
       url: "https://github.com/litxiaoxi/halo-plugin-server-pulse/blob/main/LICENSE"

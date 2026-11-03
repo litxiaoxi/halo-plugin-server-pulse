@@ -4,3 +4,4 @@ pluginManagement {
     }
 }
 rootProject.name = 'server-pulse'
+include 'ui'

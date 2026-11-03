@@ -6,10 +6,10 @@
 
 - 名称：ServerPulse 服务器监控
 - 类型：插件
-- 版本：1.0.1
+- 版本：1.2.0
 - Halo 兼容范围：`>=2.21.0`
 - 许可证：MIT
-- 简介：为 Halo 提供独立的服务器监控页面，展示 CPU、内存、磁盘、运行时间与硬件信息。
+- 简介：为 Halo 提供独立的服务器监控页面与控制台仪表盘部件，展示 CPU、内存、磁盘、运行时间与硬件信息。
 - 仓库：`https://github.com/litxiaoxi/halo-plugin-server-pulse`
 - 问题反馈：`https://github.com/litxiaoxi/halo-plugin-server-pulse/issues`
 - 主页：`https://github.com/litxiaoxi/halo-plugin-server-pulse#readme`
@@ -22,6 +22,7 @@ ServerPulse 把服务器状态做成一个干净、独立的 Halo 前台页面�
 - 查看 CPU 型号、核心数、频率、操作系统、内存类型、磁盘、Swap、进程数。
 - 最近约 2 分钟的 CPU / 内存 / 磁盘趋势曲线。
 - 亮色、暗色和跟随系统主题，适配桌面与手机。
+- 在 Halo 控制台 `/console/dashboard` 添加 ServerPulse 仪表盘部件，直接查看服务器概况。
 - 直接在 Halo 插件设置中配置服务器名称、刷新间隔、访问权限和展示项。
 - 支持仅登录用户、公开访问和指定用户访问；默认为仅登录用户。
 - 不依赖额外 Agent、独立服务、数据库或外部 CDN。
@@ -43,11 +44,12 @@ ServerPulse 把服务器状态做成一个干净、独立的 Halo 前台页面�
 1. `screenshots/desktop-light.png`：桌面亮色主界面。
 2. `screenshots/desktop-dark.png`：桌面暗色主界面。
 3. `screenshots/mobile.png`：移动端界面。
-4. 可选：`screenshots/login-required.png`、`screenshots/public-anonymous.png`。
+4. `screenshots/dashboard-widget.png`：控制台仪表盘中的 ServerPulse 部件。
+5. 可选：`screenshots/login-required.png`、`screenshots/public-anonymous.png`。
 
-## 版本说明（1.0.1）
+## 版本说明（1.2.0）
 
-1.0.1：修复插件 JAR 未包含项目 MIT LICENSE 的问题，功能无变化。首个版本包含服务器指标面板、历史曲线、亮暗主题、Halo 设置、登录/公开访问控制、OSHI 指标与 JVM 降级。
+1.2.0：新增 Halo 控制台仪表盘部件，可在 `/console/dashboard` 点击右上角「设置」→「添加部件」→「小部件中心」添加，直接查看 CPU、内存、磁盘、运行时间与硬件摘要；复用现有访问策略，并支持部件标题与展示项配置。此前版本包含服务器指标面板、历史曲线、亮暗主题、Halo 设置、登录/公开访问控制、OSHI 指标与 JVM 降级。
 
 ## 原创声明与第三方依赖
 

@@ -17,6 +17,7 @@
 - Halo 设置表单：服务器名称、默认主题、刷新间隔、访问模式、历史曲线、详细硬件信息。
 - 支持仅登录用户、公开访问、指定用户访问三种访问模式；默认为仅登录用户。
 - OSHI 不可用时自动降级为 JVM 基础指标，不影响 Halo 启动。
+- Halo 控制台仪表盘部件：在 `/console/dashboard` 点击右上角「设置」→「添加部件」→「小部件中心」添加后，可直接查看 CPU、内存、磁盘、运行时间与硬件摘要。
 
 ## 环境要求
 
@@ -29,6 +30,7 @@
 2. 启用插件。
 3. 打开 `https://你的站点/pulse`。
 4. 如需站点导航入口，在 Halo「菜单」中添加一个指向 `/pulse` 的自定义链接。
+5. 如需在控制台首页查看：打开 `/console/dashboard` → 右上角「设置」→「添加部件」→「小部件中心」→ 选择「服务器」分组中的 ServerPulse 部件 → 保存。
 
 ## 设置
 
@@ -54,13 +56,24 @@
 
 ## 接口
 
-页面通过只读接口获取数据：
+`/pulse` 页面和控制台仪表盘部件都通过只读接口获取数据：
 
 ```text
 GET /apis/api.serverpulse.halo.run/v1alpha1/metrics
 ```
 
 匿名访问时仍受 Halo 权限和插件访问设置控制；默认返回 401，公开模式开启后才允许匿名读取。指定用户模式下，未被授权的登录用户返回 403。
+
+## 控制台仪表盘部件
+
+![ServerPulse 仪表盘部件](docs/screenshots/dashboard-widget.png)
+
+- 在 Halo 控制台首页 `/console/dashboard` 点击右上角「设置」→「添加部件」→「小部件中心」→「服务器」分组，添加 ServerPulse 部件并保存。
+- 部件展示 CPU、内存、磁盘三个环形指标，以及运行时间、硬件摘要和实时状态；支持拖动和缩放。
+- 部件会根据宽高自动切换布局：窄而高时使用纵向指标行，宽而短时使用紧凑条形，较大尺寸下展示最近 2 分钟趋势曲线。
+- 部件右上角齿轮可配置标题、是否显示运行时间和硬件信息。
+- 部件沿用上面的访问策略；当前账号无权查看时显示「无查看权限」，不会绕过服务端权限。
+- 部件预览使用示例数据，不会发起请求；添加到仪表盘后按插件设置的刷新间隔轮询，页面隐藏时暂停。
 
 ## 指标口径
 
@@ -79,7 +92,7 @@ GET /apis/api.serverpulse.halo.run/v1alpha1/metrics
 
 ## 开发
 
-需要 JDK 21。Windows 本机可使用：
+需要 JDK 21、Node.js 22+ 与 pnpm 10。Windows 本机可使用：
 
 ```bash
 set JAVA_HOME=D:\Develop\jdk\jdk-21
@@ -92,7 +105,18 @@ gradlew.bat clean build
 JAVA_HOME=/path/to/jdk-21 ./gradlew clean build
 ```
 
-构建产物位于 `build/libs/`。本项目没有 UI 子工程，不需要 Node.js 或 pnpm。
+构建产物位于 `build/libs/`。Gradle 会自动执行 `ui/` 子工程中的 `pnpm install`、Vite 构建和 `vue-tsc` 类型检查，并将 `console/main.js`、`console/style.css` 打进插件 JAR。
+
+只调整控制台界面时，可单独运行：
+
+```bash
+cd ui
+pnpm install
+pnpm build        # 输出 ui/build/dist
+pnpm type-check
+```
+
+本地 Halo 联调实例可按 [docs/RELEASE.md](docs/RELEASE.md) 手动启动；`ui` 的 dev 模式会直接写入 `build/resources/main/console`，方便配合本地实例热更新。
 
 ### 本地 Halo 联调
 
@@ -101,7 +125,8 @@ JAVA_HOME=/path/to/jdk-21 ./gradlew clean build
 ## 兼容性
 
 - 使用 Halo 2.21.0 API 编译，声明兼容 `>= 2.21.0`。
-- 发布前应在 Halo 2.21.x 与当前 Halo 2.27.x 上分别验证安装、启用、页面、权限、禁用和重启。
+- 控制台仪表盘部件依赖 Halo 2.21.0 起提供的 `console:dashboard:widgets:create` 扩展点。
+- 发布前应在 Halo 2.21.x 与当前 Halo 2.27.x 上分别验证安装、启用、页面、权限、禁用、重启和仪表盘部件。
 
 ## 许可
 

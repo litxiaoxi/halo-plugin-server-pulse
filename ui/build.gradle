@@ -1,0 +1,37 @@
+plugins {
+    id 'base'
+    id "com.github.node-gradle.node" version "7.1.0"
+}
+
+group 'cn.litx.serverpulse.ui'
+
+tasks.named('pnpmInstall') {
+    args = ['--frozen-lockfile']
+}
+
+tasks.register('pnpmBuild', PnpmTask) {
+    group = 'build'
+    description = 'Build the Halo console UI with Vite'
+    args = ['build']
+    dependsOn tasks.named('pnpmInstall')
+    inputs.dir(layout.projectDirectory.dir('src'))
+    inputs.files(fileTree(
+        dir: layout.projectDirectory,
+        includes: ['*.cjs', '*.mjs', '*.ts', '*.js', '*.json', '*.yaml']))
+    outputs.dir(layout.buildDirectory.dir('dist'))
+}
+
+tasks.register('pnpmCheck', PnpmTask) {
+    group = 'verification'
+    description = 'Type-check the Halo console UI'
+    args = ['type-check']
+    dependsOn tasks.named('pnpmInstall')
+}
+
+tasks.named('assemble') {
+    dependsOn tasks.named('pnpmBuild')
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('pnpmCheck')
+}

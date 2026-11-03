@@ -2,6 +2,8 @@
 
 ## 构建
 
+需要 JDK 21、Node.js 22+、pnpm 10（Gradle 会调用 `ui/` 子工程的 pnpm 脚本）。
+
 ```bash
 JAVA_HOME=/path/to/jdk-21 ./gradlew clean build
 ```
@@ -21,7 +23,7 @@ jar tf build/libs/*.jar
 unzip -p build/libs/*.jar plugin.yaml
 ```
 
-JAR 根目录应包含 `plugin.yaml`、`logo.png`、`templates/pulse.html`、`static/pulse/**`、`extensions/*.yaml`，以及随插件打包的 OSHI/JNA 类与 native 资源（本项目由 Halo Gradle 插件直接展开到 JAR）。
+JAR 根目录应包含 `plugin.yaml`、`logo.png`、`templates/pulse.html`、`static/pulse/**`、`console/main.js`、`console/style.css`、`extensions/*.yaml`，以及随插件打包的 OSHI/JNA 类与 native 资源（本项目由 Halo Gradle 插件直接展开到 JAR）。
 
 ## 本地 Halo 验证（无 Docker）
 
@@ -69,6 +71,10 @@ JAR 根目录应包含 `plugin.yaml`、`logo.png`、`templates/pulse.html`、`st
    - 页面隐藏时暂停轮询；恢复可见立即刷新。
    - 插件禁用后 `/pulse` 不可用；重新启用后恢复。
    - 重启 Halo 后设置保留。
+   - 控制台 `/console/dashboard` →「仪表盘设置」→「添加部件」→「服务器」分组可见 ServerPulse 部件；添加并保存后显示 CPU、内存、磁盘、运行时间和硬件摘要。
+   - 部件右上角齿轮可修改标题、运行时间和硬件信息显示；修改后保存生效。
+   - 在 4×5、4×12、8×8、12×5、12×12 等尺寸下检查布局自动切换、趋势图显示和无溢出。
+   - 部件预览使用示例数据，不发起指标请求；仪表盘上的部件按设置刷新。
    - 浏览器控制台无未处理错误，无外部网络请求。
 7. 用 Halo 2.21.0 在独立工作目录重复关键路径，确认最低兼容版本。
 8. 生成应用市场截图：桌面亮色、桌面暗色、移动端各一张，必须来自真实页面。
