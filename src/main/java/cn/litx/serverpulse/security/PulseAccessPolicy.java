@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 import cn.litx.serverpulse.config.PulseSettings;
 
 /**
- * Central place for the "login-only vs public" decision.
+ * Central place for the access mode decision.
  *
  * <p>The public API is granted to anonymous visitors in RBAC so the endpoint can return
  * a useful 401/403 response. The actual data decision is still made here and fails closed.</p>
@@ -24,30 +24,46 @@ public class PulseAccessPolicy {
 
     private final ObjectProvider<ServerSecurityContextRepository> contextRepositoryProvider;
 
-    public boolean allows(PulseSettings settings, boolean authenticated) {
-        return settings.publicAccess() || authenticated;
+    /**
+     * Decides whether the given user may read metrics.
+     *
+     * @param username the authenticated username, or an empty string for anonymous visitors
+     */
+    public boolean allows(PulseSettings settings, String username) {
+        var normalized = settings.normalized();
+        var authenticated = username != null && !username.isBlank();
+        return switch (normalized.accessMode()) {
+            case PulseSettings.ACCESS_PUBLIC -> true;
+            case PulseSettings.ACCESS_USERS -> authenticated
+                && normalized.allowedUsers().contains(username);
+            default -> authenticated;
+        };
     }
 
-    public Mono<Boolean> isAuthenticated(ServerWebExchange exchange) {
+    /**
+     * Resolves the current username, falling back to the security context repository when
+     * the reactive context has not been populated yet. Returns an empty string for anonymous.
+     */
+    public Mono<String> currentUsername(ServerWebExchange exchange) {
         return ReactiveSecurityContextHolder.getContext()
             .map(SecurityContext::getAuthentication)
-            .map(this::isRealUser)
-            .defaultIfEmpty(false)
-            .onErrorResume(error -> Mono.just(false))
-            .flatMap(authenticated -> {
-                if (authenticated) {
-                    return Mono.just(true);
-                }
-                var repository = contextRepositoryProvider.getIfAvailable();
-                if (repository == null) {
-                    return Mono.just(false);
-                }
-                return repository.load(exchange)
-                    .map(SecurityContext::getAuthentication)
-                    .map(this::isRealUser)
-                    .defaultIfEmpty(false)
-                    .onErrorResume(error -> Mono.just(false));
-            });
+            .filter(this::isRealUser)
+            .map(Authentication::getName)
+            .filter(name -> !name.isBlank())
+            .switchIfEmpty(Mono.defer(() -> loadUsername(exchange)))
+            .defaultIfEmpty("")
+            .onErrorResume(error -> Mono.just(""));
+    }
+
+    private Mono<String> loadUsername(ServerWebExchange exchange) {
+        var repository = contextRepositoryProvider.getIfAvailable();
+        if (repository == null) {
+            return Mono.empty();
+        }
+        return repository.load(exchange)
+            .map(SecurityContext::getAuthentication)
+            .filter(this::isRealUser)
+            .map(Authentication::getName);
     }
 
     private boolean isRealUser(Authentication authentication) {

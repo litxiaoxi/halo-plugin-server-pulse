@@ -466,7 +466,7 @@ html[data-theme="dark"] .icon-moon {
     background: conic-gradient(var(--metric) calc(var(--value) * 1%), var(--track) 0);
     -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px));
     mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px));
-    transition: background 420ms ease;
+    /* 渐变无法用 transition 插值，数值由 pulse.js 逐帧补间写入 --value。 */
 }
 
 .gauge-center {
@@ -525,7 +525,7 @@ html[data-theme="dark"] .icon-moon {
     height: 100%;
     border-radius: inherit;
     background: var(--metric);
-    transition: width 420ms ease;
+    /* 宽度同样由 pulse.js 与圆环、数字同步补间，避免三者节奏不一致。 */
 }
 
 .notice {

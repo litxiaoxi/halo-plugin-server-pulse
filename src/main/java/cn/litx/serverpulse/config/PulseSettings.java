@@ -1,5 +1,7 @@
 package cn.litx.serverpulse.config;
 
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -14,7 +16,8 @@ public record PulseSettings(
     Integer refreshInterval,
     String accessMode,
     Boolean showHistory,
-    Boolean showDetails
+    Boolean showDetails,
+    List<String> allowedUsers
 ) {
 
     public static final String GROUP = "general";
@@ -23,12 +26,14 @@ public record PulseSettings(
     public static final String THEME_DARK = "dark";
     public static final String ACCESS_LOGIN = "login";
     public static final String ACCESS_PUBLIC = "public";
+    public static final String ACCESS_USERS = "users";
     public static final int MIN_REFRESH_SECONDS = 1;
     public static final int MAX_REFRESH_SECONDS = 30;
     public static final int DEFAULT_REFRESH_SECONDS = 3;
 
     public static PulseSettings defaults() {
-        return new PulseSettings("", THEME_AUTO, DEFAULT_REFRESH_SECONDS, ACCESS_LOGIN, true, true);
+        return new PulseSettings(
+            "", THEME_AUTO, DEFAULT_REFRESH_SECONDS, ACCESS_LOGIN, true, true, List.of());
     }
 
     /**
@@ -45,12 +50,17 @@ public record PulseSettings(
             normalizedRefresh,
             normalizedAccess,
             showHistory == null || showHistory,
-            showDetails == null || showDetails
+            showDetails == null || showDetails,
+            normalizeUsers(allowedUsers)
         );
     }
 
     public boolean publicAccess() {
         return ACCESS_PUBLIC.equals(normalized().accessMode());
+    }
+
+    public boolean specificUsersAccess() {
+        return ACCESS_USERS.equals(normalized().accessMode());
     }
 
     public boolean showHistoryEnabled() {
@@ -85,7 +95,27 @@ public record PulseSettings(
             return ACCESS_LOGIN;
         }
         var candidate = value.trim().toLowerCase(Locale.ROOT);
-        return ACCESS_PUBLIC.equals(candidate) ? ACCESS_PUBLIC : ACCESS_LOGIN;
+        return switch (candidate) {
+            case ACCESS_PUBLIC, ACCESS_USERS -> candidate;
+            default -> ACCESS_LOGIN;
+        };
+    }
+
+    private static List<String> normalizeUsers(List<String> value) {
+        if (value == null || value.isEmpty()) {
+            return List.of();
+        }
+        var users = new LinkedHashSet<String>();
+        for (var entry : value) {
+            if (entry == null) {
+                continue;
+            }
+            var username = entry.trim();
+            if (!username.isEmpty()) {
+                users.add(username);
+            }
+        }
+        return List.copyOf(users);
     }
 
     private static int normalizeRefresh(Integer value) {

@@ -51,13 +51,14 @@ public class PulseMetricsEndpoint implements CustomEndpoint {
     private Mono<ServerResponse> getMetrics(ServerRequest request) {
         return Mono.zip(
                 settingsService.get(),
-                accessPolicy.isAuthenticated(request.exchange())
+                accessPolicy.currentUsername(request.exchange())
             )
             .flatMap(tuple -> {
                 var settings = tuple.getT1().normalized();
-                var authenticated = tuple.getT2();
-                if (!accessPolicy.allows(settings, authenticated)) {
-                    return unauthorized();
+                var username = tuple.getT2();
+                var authenticated = !username.isBlank();
+                if (!accessPolicy.allows(settings, username)) {
+                    return authenticated ? forbidden() : unauthorized();
                 }
 
                 var snapshotOptional = snapshotCache.current();
@@ -101,6 +102,14 @@ public class PulseMetricsEndpoint implements CustomEndpoint {
             .cacheControl(CacheControl.noStore())
             .header("X-Content-Type-Options", "nosniff")
             .bodyValue(new ErrorResponse("unauthorized", "请先登录后查看服务器监控"));
+    }
+
+    private Mono<ServerResponse> forbidden() {
+        return ServerResponse.status(HttpStatus.FORBIDDEN)
+            .contentType(APPLICATION_JSON)
+            .cacheControl(CacheControl.noStore())
+            .header("X-Content-Type-Options", "nosniff")
+            .bodyValue(new ErrorResponse("forbidden", "当前账号没有查看服务器监控的权限"));
     }
 
     private Mono<ServerResponse> warmingUp() {

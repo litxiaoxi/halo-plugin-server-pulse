@@ -8,6 +8,7 @@
     const DEFAULT_REFRESH_SECONDS = 3;
     const MIN_REFRESH_SECONDS = 1;
     const MAX_REFRESH_SECONDS = 30;
+    const METRIC_TWEEN_MS = 720;
 
     const elements = {
         dashboard: document.getElementById("dashboard"),
@@ -41,6 +42,9 @@
         history: [],
         theme: null
     };
+
+    // 每个指标缓存自身节点与当前显示的数值，检测到新数据时从当前值补间到目标值。
+    const metrics = {};
 
     function resolveApiBase() {
         const configured = (body.dataset.apiBase || "").trim();
@@ -334,9 +338,17 @@
         state.history = showHistory && Array.isArray(payload.history) ? payload.history : [];
         drawHistory();
 
-        elements.accessBadge.textContent = access.mode === "public"
-            ? "公开访问"
-            : access.authenticated ? "已登录 · 仅登录可见" : "仅登录用户";
+        elements.accessBadge.textContent = accessBadgeText(access);
+    }
+
+    function accessBadgeText(access) {
+        if (access.mode === "public") {
+            return "公开访问";
+        }
+        if (access.mode === "users") {
+            return access.authenticated ? "已登录 · 指定用户可见" : "指定用户";
+        }
+        return access.authenticated ? "已登录 · 仅登录可见" : "仅登录用户";
     }
 
     function renderHero(payload, info, usage) {
@@ -361,29 +373,77 @@
     }
 
     function renderMetric(prefix, percent, detail, sub) {
-        const value = clampPercent(percent);
-        const gauge = document.getElementById(prefix + "-gauge");
-        const valueElement = document.getElementById(prefix + "-value");
-        const bar = document.getElementById(prefix + "-bar");
-        const detailElement = document.getElementById(prefix + "-detail");
-        const subElement = document.getElementById(prefix + "-sub");
+        const metric = metricParts(prefix);
+        tweenMetric(metric, clampPercent(percent));
 
-        if (valueElement) {
-            valueElement.textContent = formatPercent(value);
+        if (metric.detail) {
+            metric.detail.textContent = detail || "--";
         }
-        if (gauge) {
-            gauge.style.setProperty("--value", String(value));
-            gauge.setAttribute("aria-valuenow", String(Math.round(value)));
+        if (metric.sub) {
+            metric.sub.textContent = sub || "--";
         }
-        if (bar) {
-            bar.style.width = value + "%";
+    }
+
+    function metricParts(prefix) {
+        let metric = metrics[prefix];
+        if (!metric) {
+            metric = {
+                gauge: document.getElementById(prefix + "-gauge"),
+                value: document.getElementById(prefix + "-value"),
+                bar: document.getElementById(prefix + "-bar"),
+                detail: document.getElementById(prefix + "-detail"),
+                sub: document.getElementById(prefix + "-sub"),
+                current: 0,
+                frame: 0
+            };
+            metrics[prefix] = metric;
         }
-        if (detailElement) {
-            detailElement.textContent = detail || "--";
+        return metric;
+    }
+
+    function tweenMetric(metric, target) {
+        if (!metric.gauge || !metric.value || !metric.bar) {
+            return;
         }
-        if (subElement) {
-            subElement.textContent = sub || "--";
+        metric.gauge.setAttribute("aria-valuenow", String(Math.round(target)));
+
+        // 新数据可能在上一段动画中途到达，从当前显示值接着补间，避免跳变。
+        if (metric.frame) {
+            window.cancelAnimationFrame(metric.frame);
+            metric.frame = 0;
         }
+
+        const from = metric.current;
+        const distance = target - from;
+        if (prefersReducedMotion() || Math.abs(distance) < 0.05) {
+            paintMetric(metric, target);
+            return;
+        }
+
+        const startedAt = performance.now();
+        const tick = function (now) {
+            const progress = Math.min(1, (now - startedAt) / METRIC_TWEEN_MS);
+            if (progress >= 1) {
+                metric.frame = 0;
+                paintMetric(metric, target);
+                return;
+            }
+            // 先快后慢，数值快速接近目标后柔和收敛。
+            paintMetric(metric, from + distance * (1 - Math.pow(1 - progress, 5)));
+            metric.frame = window.requestAnimationFrame(tick);
+        };
+        metric.frame = window.requestAnimationFrame(tick);
+    }
+
+    function paintMetric(metric, value) {
+        metric.current = value;
+        metric.gauge.style.setProperty("--value", value.toFixed(2));
+        metric.value.textContent = formatPercent(value);
+        metric.bar.style.width = value.toFixed(2) + "%";
+    }
+
+    function prefersReducedMotion() {
+        return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     }
 
     function renderDetails(info, runtime) {

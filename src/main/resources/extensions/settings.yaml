@@ -39,7 +39,17 @@ spec:
               value: login
             - label: 公开访问（会向所有访客展示服务器概况）
               value: public
+            - label: 指定用户访问
+              value: users
           help: 默认仅登录用户可见。公开访问会把 CPU、内存、磁盘和系统信息暴露给任何访客，请谨慎开启。
+        - $formkit: userSelect
+          name: allowedUsers
+          label: 指定用户
+          multiple: true
+          clearable: true
+          searchable: true
+          placeholder: 选择允许查看服务器监控的用户
+          help: 仅在「指定用户访问」模式下生效。未选中的登录用户会收到 403，匿名访客仍需先登录。
         - $formkit: switch
           name: showHistory
           label: 显示历史曲线
