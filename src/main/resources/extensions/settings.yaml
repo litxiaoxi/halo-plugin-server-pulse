@@ -27,7 +27,7 @@ spec:
         - $formkit: number
           name: refreshInterval
           label: 刷新间隔（秒）
-          value: 3
+          value: 2
           validation: required|min:1|max:30
           help: 允许 1–30 秒。页面隐藏时会自动暂停轮询。
         - $formkit: radio

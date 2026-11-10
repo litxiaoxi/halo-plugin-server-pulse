@@ -32,7 +32,8 @@ class MetricsSnapshotCacheTest {
     @Test
     void historyIsLimitedForTheApi() {
         var cache = new MetricsSnapshotCache();
-        for (var i = 0; i < 100; i++) {
+        var total = MetricsSnapshotCache.API_HISTORY_LIMIT + 20;
+        for (var i = 0; i < total; i++) {
             cache.update(new MetricsSnapshot(
                 i,
                 false,
@@ -44,7 +45,7 @@ class MetricsSnapshotCacheTest {
 
         List<HistoryPoint> history = cache.history();
         assertEquals(MetricsSnapshotCache.API_HISTORY_LIMIT, history.size());
-        assertEquals(40, history.getFirst().timestamp());
-        assertEquals(99, history.getLast().timestamp());
+        assertEquals(total - MetricsSnapshotCache.API_HISTORY_LIMIT, history.getFirst().timestamp());
+        assertEquals(total - 1, history.getLast().timestamp());
     }
 }

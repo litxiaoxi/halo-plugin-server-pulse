@@ -7,8 +7,8 @@ import java.util.Locale;
 /**
  * User-configurable ServerPulse settings.
  *
- * <p>Values are normalized on the server. Missing or invalid values fall back to a
- * conservative default: login-only access, automatic theme and a 3 second refresh.</p>
+ * <p>Values are normalized on the server. Missing or invalid values fall back to the
+ * plugin default: login-only access, automatic theme and a 2 second refresh.</p>
  */
 public record PulseSettings(
     String serverName,
@@ -29,7 +29,7 @@ public record PulseSettings(
     public static final String ACCESS_USERS = "users";
     public static final int MIN_REFRESH_SECONDS = 1;
     public static final int MAX_REFRESH_SECONDS = 30;
-    public static final int DEFAULT_REFRESH_SECONDS = 3;
+    public static final int DEFAULT_REFRESH_SECONDS = 2;
 
     public static PulseSettings defaults() {
         return new PulseSettings(

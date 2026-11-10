@@ -5,7 +5,7 @@
     const API_BASE = resolveApiBase();
     const API_URL = API_BASE + "/metrics";
     const THEME_KEY = "server-pulse-theme";
-    const DEFAULT_REFRESH_SECONDS = 3;
+    const DEFAULT_REFRESH_SECONDS = 2;
     const MIN_REFRESH_SECONDS = 1;
     const MAX_REFRESH_SECONDS = 30;
     const METRIC_TWEEN_MS = 720;
@@ -40,6 +40,7 @@
         consecutiveErrors: 0,
         refreshSeconds: DEFAULT_REFRESH_SECONDS,
         history: [],
+        historyKey: "",
         theme: null
     };
 
@@ -270,7 +271,10 @@
     }
 
     function setLive(text, className) {
-        elements.liveText.textContent = text;
+        const next = text || "";
+        if (elements.liveText.textContent !== next) {
+            elements.liveText.textContent = next;
+        }
         elements.livePill.classList.remove("is-error", "is-paused");
         if (className) {
             elements.livePill.classList.add(className);
@@ -334,9 +338,19 @@
         }
 
         const showHistory = Boolean(ui.showHistory);
-        elements.historyPanel.hidden = !showHistory || !Array.isArray(payload.history) || payload.history.length === 0;
-        state.history = showHistory && Array.isArray(payload.history) ? payload.history : [];
-        drawHistory();
+        const historyPoints = showHistory && Array.isArray(payload.history) ? payload.history : [];
+        elements.historyPanel.hidden = historyPoints.length === 0;
+        state.history = historyPoints;
+
+        // 采样数据未变化时（例如上一次轮询与本次快照相同）跳过整张 canvas 重绘。
+        const lastPoint = historyPoints.length > 0 ? historyPoints[historyPoints.length - 1] : null;
+        const historyKey = historyPoints.length + "|" + (payload.generatedAt || "") + "|" + (lastPoint
+            ? lastPoint.cpuPercent + "|" + lastPoint.memoryPercent + "|" + lastPoint.storagePercent
+            : "");
+        if (historyKey !== state.historyKey) {
+            state.historyKey = historyKey;
+            drawHistory();
+        }
 
         elements.accessBadge.textContent = accessBadgeText(access);
     }
@@ -576,6 +590,7 @@
         ctx.textAlign = "right";
         ctx.textBaseline = "middle";
 
+        ctx.setLineDash([2, 5]);
         [100, 75, 50, 25, 0].forEach(function (value) {
             const y = padding.top + height * (1 - value / 100);
             ctx.beginPath();
@@ -584,6 +599,7 @@
             ctx.stroke();
             ctx.fillText(value + "%", padding.left - 8, y);
         });
+        ctx.setLineDash([]);
 
         const xFor = function (index) {
             return padding.left + (width * index) / (points.length - 1);
@@ -605,24 +621,31 @@
     }
 
     function drawLine(ctx, points, key, xFor, yFor, color) {
+        const lastIndex = points.length - 1;
+        const endX = xFor(lastIndex);
+        const endY = yFor(points[lastIndex][key]);
         ctx.beginPath();
-        points.forEach(function (point, index) {
+        ctx.moveTo(xFor(0), yFor(points[0][key]));
+        // 以相邻点的中点作为二次曲线落点，让折线呈现平滑的信号波形。
+        for (let index = 1; index < lastIndex; index += 1) {
             const x = xFor(index);
-            const y = yFor(point[key]);
-            if (index === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
-            }
-        });
+            const y = yFor(points[index][key]);
+            const midX = (x + xFor(index + 1)) / 2;
+            const midY = (y + yFor(points[index + 1][key])) / 2;
+            ctx.quadraticCurveTo(x, y, midX, midY);
+        }
+        ctx.lineTo(endX, endY);
         ctx.strokeStyle = color;
         ctx.lineWidth = 2;
         ctx.lineJoin = "round";
         ctx.lineCap = "round";
+        ctx.shadowColor = hexToRgba(color, 0.32);
+        ctx.shadowBlur = 7;
         ctx.stroke();
+        ctx.shadowBlur = 0;
 
         if (key === "cpuPercent") {
-            ctx.lineTo(xFor(points.length - 1), yFor(0));
+            ctx.lineTo(endX, yFor(0));
             ctx.lineTo(xFor(0), yFor(0));
             ctx.closePath();
             const gradient = ctx.createLinearGradient(
@@ -636,6 +659,16 @@
             ctx.fillStyle = gradient;
             ctx.fill();
         }
+
+        // 末端亮点：标记“现在”这一帧的读数。
+        ctx.beginPath();
+        ctx.arc(endX, endY, 6, 0, Math.PI * 2);
+        ctx.fillStyle = hexToRgba(color, 0.16);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(endX, endY, 2.6, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
     }
 
     function observeChart() {

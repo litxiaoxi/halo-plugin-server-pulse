@@ -32,7 +32,7 @@ public class PulseSampler {
         this.cache = cache;
     }
 
-    @Scheduled(fixedRate = 2000, initialDelay = 0)
+    @Scheduled(fixedRate = 1000, initialDelay = 0)
     public Mono<Void> sample() {
         if (!sampling.compareAndSet(false, true)) {
             return Mono.empty();

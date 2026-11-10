@@ -72,6 +72,17 @@
                     <strong id="refresh-label">--</strong>
                 </div>
             </div>
+            <svg class="hero-trace" viewBox="0 0 1200 54" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                <defs>
+                    <linearGradient id="trace-gradient" x1="0" y1="0" x2="1" y2="0">
+                        <stop class="trace-stop-start" offset="0"></stop>
+                        <stop class="trace-stop-end" offset="1"></stop>
+                    </linearGradient>
+                    <path id="trace-shape" pathLength="1200" d="M0 30H286l16-19 13 38 11-29 9 10h232l22-25 15 46 13-35 11 13h206l18-15 11 27 9-19 7 7H1200"></path>
+                </defs>
+                <use class="trace-base" href="#trace-shape"></use>
+                <use class="trace-pulse" href="#trace-shape"></use>
+            </svg>
         </section>
 
         <section class="state-panel" id="locked-state" hidden>
@@ -83,7 +94,7 @@
             <a class="button primary" id="login-link" href="/login?redirect=%2Fpulse">前往登录</a>
         </section>
 
-        <section class="state-panel" id="error-state" hidden>
+        <section class="state-panel is-error" id="error-state" hidden>
             <div class="state-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><path d="M12 3 2.5 20h19L12 3Z"></path><path d="M12 9v5M12 17.5v.1"></path></svg>
             </div>

@@ -16,7 +16,7 @@ class PulseSettingsTest {
 
         assertEquals("login", settings.accessMode());
         assertEquals("auto", settings.theme());
-        assertEquals(3, settings.refreshInterval());
+        assertEquals(2, settings.refreshInterval());
         assertFalse(settings.publicAccess());
         assertFalse(settings.specificUsersAccess());
         assertTrue(settings.allowedUsers().isEmpty());

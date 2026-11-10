@@ -28,12 +28,12 @@ const props = withDefaults(
 type Status = "loading" | "ok" | "warming" | "unauthorized" | "forbidden" | "error";
 type Tone = "live" | "warn" | "muted";
 
-const DEFAULT_REFRESH_SECONDS = 3;
+const DEFAULT_REFRESH_SECONDS = 2;
 
-const SAMPLE_HISTORY: HistoryPoint[] = Array.from({ length: 36 }, (_, index) => {
+const SAMPLE_HISTORY: HistoryPoint[] = Array.from({ length: 60 }, (_, index) => {
   const now = Date.now();
   return {
-    timestamp: now - (36 - index) * 3000,
+    timestamp: now - (60 - index) * 1000,
     cpuPercent: Math.max(4, 42.3 + Math.sin(index / 4.2) * 7 + Math.sin(index / 1.7) * 2),
     memoryPercent: 63.8 + Math.sin(index / 5.5) * 2.6,
     storagePercent: 71.2 + index * 0.004,
@@ -42,12 +42,12 @@ const SAMPLE_HISTORY: HistoryPoint[] = Array.from({ length: 36 }, (_, index) => 
 
 const SAMPLE: MetricsResponse = {
   serverName: "生产服务器",
-  pluginVersion: "1.2.0",
+  pluginVersion: "1.3.0",
   generatedAt: Date.now(),
   stale: false,
   degraded: false,
   access: { mode: "login", authenticated: true },
-  ui: { theme: "auto", refreshInterval: 3, showHistory: true, showDetails: true },
+  ui: { theme: "auto", refreshInterval: 2, showHistory: true, showDetails: true },
   info: {
     processor: {
       name: "AMD EPYC 7B13",
